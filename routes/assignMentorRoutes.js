@@ -8,5 +8,6 @@ router.post('/createMentor',mentorsController.createMentor)
 router.post('/createStudent',studentsController.createStudent)
 
 router.put('/updateStudentForMentor',mentorsController.updateStudentForMentor)
+router.put('/updateMentorForStudent',mentorsController.updateMentorForStudent)
 
 module.exports = router
