@@ -22,14 +22,38 @@ const mentorsController = {
 
     updateStudentForMentor : async (req,res) => {
         try{
-            // const { id } = request.params;
             const {mentor_id,students_list} = req.body
-            const mentor_info = await mentors.findOne({"mentor_id":mentor_id})
-            mentor_info.stud_list = students_list
+            const mentors_data = await mentors.findOne({"mentor_id":mentor_id})
 
-            const updateStudentsList = await mentor_info.save()
+            const non_mentor_students = []
 
-            res.json({message: mentor_info.stud_list})
+            for(let i=0;i<students_list.length;i++){
+                let student_id = students_list[i]
+                console.log("Student:",student_id)
+                const students_data_filter = await students.findOne({"student_id":student_id})
+                if(students_data_filter.mentor_id==""){
+                    console.log("inside if")
+                    non_mentor_students.push(student_id)
+                }
+            }
+            console.log("latest:",non_mentor_students)
+
+            mentors_data.stud_list = non_mentor_students
+
+            await mentors_data.save()
+            .then(() => {
+                res.json({message: "Saved STUDENTS LIST with MENTOR Successfully"})
+
+                non_mentor_students.map(async stud => {
+                    console.log("Saving mentor for new students:",stud)
+                    const students_data_update_mentor = await students.findOne({"student_id":stud})
+                    students_data_update_mentor.mentor_id = mentor_id
+                    students_data_update_mentor.save()
+                })
+            })
+
+ 
+
         }catch(error){
             res.status(500).json({message:"ERROR while adding Student details with Mentor"})
         }
