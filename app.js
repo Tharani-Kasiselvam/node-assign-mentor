@@ -14,7 +14,7 @@ app.use(morgan('dev'))
 app.use('/', assignMentorRoutes)
 
 app.get('/',(req,res)=>{
-    res.send("Mentor Students DB System")
+    res.send("Mentor-Students DB System")
  })
 
 module.exports = app

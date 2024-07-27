@@ -29,23 +29,18 @@ const mentorsController = {
 
             for(let i=0;i<students_list.length;i++){
                 let student_id = students_list[i]
-                console.log("Student:",student_id)
                 const students_data_filter = await students.findOne({"student_id":student_id})
                 if(students_data_filter.mentor_id==""){
-                    console.log("inside if")
                     non_mentor_students.push(student_id)
                 }
             }
-            console.log("latest:",non_mentor_students)
-
             mentors_data.stud_list = non_mentor_students
 
             await mentors_data.save()
             .then(() => {
-                res.json({message: "Saved STUDENTS LIST with MENTOR Successfully",non_mentor_students})
+                res.json({message: "Saved STUDENTS LIST with MENTOR Successfully"})
 
                 non_mentor_students.map(async stud => {
-                    console.log("Saving mentor for new students:",stud)
                     const students_data_update_mentor = await students.findOne({"student_id":stud})
                     students_data_update_mentor.mentor_id = mentor_id
                     students_data_update_mentor.save()
@@ -88,13 +83,9 @@ const mentorsController = {
             const students_name = []
 
             await Promise.all(stud_list.map(async student => {
-                console.log(student)
                 const students_data = await students.findOne({"student_id":student})
-                console.log("Stud collctn:",students_data.student_name)
                 students_name.push(students_data.student_name)
-                console.log(students_name)
             }))
-            console.log("outside map:",students_name)
             if(students_name.length>0)
                 await res.json({message:"Here is the list of Students tagged for the Mentor",mentor_id,mentor_name,students_name})
 
@@ -104,6 +95,22 @@ const mentorsController = {
         }catch(error){
             res.status(500).json({message:"ERROR while loading Students information"})
         }
+    },
+
+    showExistingMentor : async (req,res) => {
+        const {student_id} = req.body
+
+        const student_data = await students.findOne({"student_id":student_id})
+        const student_name = student_data.student_name
+        const ex_mentor_id = student_data.ex_mentor_id
+
+        if(ex_mentor_id!=""){
+            const mentor_data = await mentors.findOne({"mentor_id":ex_mentor_id})
+            const ex_mentor_name = mentor_data.mentor_name
+            res.json({message:"The previous Mentor tagged for the Student is:",student_id,student_name,ex_mentor_id,ex_mentor_name})
+        }
+        else
+        res.json({message:"The Student is NOT tagged with previous Mentor:",student_id,student_name})
     }
 }
 

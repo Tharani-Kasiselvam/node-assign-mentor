@@ -15,5 +15,4 @@ const mentorsSchema = new mongoose.Schema(
     }
 )
 
-
 module.exports = mongoose.model('Mentors',mentorsSchema,'mentors')

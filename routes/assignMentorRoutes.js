@@ -5,6 +5,7 @@ const mentorsController = require('../controllers/mentorsController')
 const studentsController = require('../controllers/studentsController')
 
 router.get('/showStudentsForMentor',mentorsController.showStudentsForMentor)
+router.get('/showExistingMentor',mentorsController.showExistingMentor)
 
 router.post('/createMentor',mentorsController.createMentor)
 router.post('/createStudent',studentsController.createStudent)
