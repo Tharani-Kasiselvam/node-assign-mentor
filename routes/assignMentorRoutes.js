@@ -4,6 +4,8 @@ const router = express.Router()
 const mentorsController = require('../controllers/mentorsController')
 const studentsController = require('../controllers/studentsController')
 
+router.get('/showStudentsForMentor',mentorsController.showStudentsForMentor)
+
 router.post('/createMentor',mentorsController.createMentor)
 router.post('/createStudent',studentsController.createStudent)
 

@@ -75,6 +75,35 @@ const mentorsController = {
     }catch(error){
         res.status(500).json({message:"ERROR while adding Mentor details with Student"})
     }
+    },
+    
+    showStudentsForMentor : async (req,res) => {
+        try{
+            const {mentor_id} = req.body
+
+            const mentors_data = await mentors.findOne({"mentor_id":mentor_id})
+
+            const stud_list = mentors_data.stud_list
+            const mentor_name = mentors_data.mentor_name
+            const students_name = []
+
+            await Promise.all(stud_list.map(async student => {
+                console.log(student)
+                const students_data = await students.findOne({"student_id":student})
+                console.log("Stud collctn:",students_data.student_name)
+                students_name.push(students_data.student_name)
+                console.log(students_name)
+            }))
+            console.log("outside map:",students_name)
+            if(students_name.length>0)
+                await res.json({message:"Here is the list of Students tagged for the Mentor",mentor_id,mentor_name,students_name})
+
+            else
+                await res.json({message:"No students tagged for the Mentor",mentor_id, mentor_name})
+
+        }catch(error){
+            res.status(500).json({message:"ERROR while loading Students information"})
+        }
     }
 }
 
