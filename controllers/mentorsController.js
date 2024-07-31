@@ -13,7 +13,7 @@ const mentorsController = {
 
                 const saveMentor = await newMentor.save()
 
-                res.status(200).json({message:"New Mentor details uploaded SUCCESSFULLY", saveMentor})
+                res.status(200).json({message:"New Mentor added SUCCESSFULLY", saveMentor})
         }catch(error){
             res.status(500).json({message:"ERROR while uploading Mentor details"})
 
@@ -23,10 +23,12 @@ const mentorsController = {
     updateStudentForMentor : async (req,res) => {
         try{
             const {mentor_id,students_list} = req.body
+            console.log("stud_lst:",students_list)
             const mentors_data = await mentors.findOne({"mentor_id":mentor_id})
 
             const non_mentor_students = []
 
+            if(mentors_data!=null){
             for(let i=0;i<students_list.length;i++){
                 let student_id = students_list[i]
                 const students_data_filter = await students.findOne({"student_id":student_id})
@@ -46,6 +48,11 @@ const mentorsController = {
                     students_data_update_mentor.save()
                 })
             })
+            }
+
+            else{
+                res.json({message: "Enter valid Mentor Id"})
+            }
         }catch(error){
             res.status(500).json({message:"ERROR while adding Student details with Mentor"})
         }
@@ -57,24 +64,25 @@ const mentorsController = {
 
         const student_data = await students.findOne({"student_id":student_id})
         
-        if(student_data.mentor_id==""){
-            student_data.mentor_id = mentor_id
-        }
-        else{
-            student_data.ex_mentor_id = student_data.mentor_id
-            student_data.mentor_id = mentor_id
-        }
-        student_data.save()
-        res.json({message: "Updated MENTOR for the STUDENT Successfully"})
-
+            if(student_data.mentor_id==""){
+                student_data.mentor_id = mentor_id
+            }
+            else{
+                student_data.ex_mentor_id = student_data.mentor_id
+                student_data.mentor_id = mentor_id
+            }
+            student_data.save()
+            res.json({message: "Updated MENTOR for the STUDENT Successfully"})
     }catch(error){
-        res.status(500).json({message:"ERROR while adding Mentor details with Student"})
+        res.status(500).json({message:"ERROR while adding Mentor details with Student, kindly verify the Student Id"})
     }
     },
     
     showStudentsForMentor : async (req,res) => {
         try{
-            const {mentor_id} = req.body
+            // const {mentor_id} = req.body
+
+            const mentor_id = req.params.id
 
             const mentors_data = await mentors.findOne({"mentor_id":mentor_id})
 
@@ -87,30 +95,35 @@ const mentorsController = {
                 students_name.push(students_data.student_name)
             }))
             if(students_name.length>0)
-                await res.json({message:"Here is the list of Students tagged for the Mentor",mentor_id,mentor_name,students_name})
+                await res.json({message:"List of Students tagged for ",mentor_id,mentor_name,students_name})
 
             else
                 await res.json({message:"No students tagged for the Mentor",mentor_id, mentor_name})
 
         }catch(error){
-            res.status(500).json({message:"ERROR while loading Students information"})
+            res.status(500).json({message:"ERROR while loading Students information, kindly verify the Mentor Id"})
         }
     },
 
     showExistingMentor : async (req,res) => {
-        const {student_id} = req.body
+        try{
+            // const {student_id} = req.body
+            const student_id = req.params.id
+            console.log("Student ID param: ",student_id)
+            const student_data = await students.findOne({"student_id":student_id})
+            const student_name = student_data.student_name
+            const ex_mentor_id = student_data.ex_mentor_id
 
-        const student_data = await students.findOne({"student_id":student_id})
-        const student_name = student_data.student_name
-        const ex_mentor_id = student_data.ex_mentor_id
-
-        if(ex_mentor_id!=""){
-            const mentor_data = await mentors.findOne({"mentor_id":ex_mentor_id})
-            const ex_mentor_name = mentor_data.mentor_name
-            res.json({message:"The previous Mentor tagged for the Student is:",student_id,student_name,ex_mentor_id,ex_mentor_name})
+            if(ex_mentor_id!=""){
+                const mentor_data = await mentors.findOne({"mentor_id":ex_mentor_id})
+                const ex_mentor_name = mentor_data.mentor_name
+                res.json({message:"The previous Mentor tagged for :",student_id,student_name,ex_mentor_id,ex_mentor_name})
+            }
+            else
+                res.json({message:"No Previous Mentor Tagged for the student:",student_id,student_name})
+        }catch(error){
+            res.status(500).json({message:"ERROR while loading Mentor information, kindly verify the Student Id"})
         }
-        else
-        res.json({message:"The Student is NOT tagged with previous Mentor:",student_id,student_name})
     }
 }
 

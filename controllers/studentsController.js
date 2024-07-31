@@ -11,7 +11,7 @@ const studentsController = {
             })
 
             const saveStudent = await newStudent.save()
-            res.status(200).json({message:"New Student details uploaded SUCCESSFULLY", saveStudent})
+            res.status(200).json({message:"New Student added SUCCESSFULLY", saveStudent})
         }
         catch(error){
             res.status(500).json({message:"ERROR while uploading Student details"})
